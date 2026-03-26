@@ -1,0 +1,15 @@
+announcement_id,asx_code,pdf_url,reason,timestamp
+03076439,SSM,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xvk0bswhyp93.pdf,missing current position fields: ['new_percent'],2026-03-26T12:46:00Z
+03076399,TWE,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xvfqbst2rb21.pdf,missing current position fields: ['new_percent'],2026-03-26T12:47:23Z
+03076394,GTN,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xvf7ttt8xpjl.pdf,"missing current position fields: ['new_percent', 'date_of_change']",2026-03-26T12:47:37Z
+03076393,MCP,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xvf5mzrb7qjm.pdf,"missing current position fields: ['new_percent', 'date_of_change']",2026-03-26T12:47:44Z
+03076384,MYR,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xvdh4y83nqtx.pdf,missing current position fields: ['new_percent'],2026-03-26T12:47:59Z
+03076371,NWL,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xvcgrq6pt43l.pdf,missing current position fields: ['new_percent'],2026-03-26T12:48:09Z
+03076344,TWE,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xv9d5qfl979q.pdf,missing current position fields: ['new_percent'],2026-03-26T12:48:25Z
+03076343,CXO,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xv99vyp2xnnh.pdf,missing current position fields: ['new_percent'],2026-03-26T12:48:33Z
+03076227,SVM,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xtz6rhpx3gwr.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-26T12:48:51Z
+03076085,INA,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xtn2qj2h5bcr.pdf,missing current position fields: ['new_percent'],2026-03-26T12:49:14Z
+03076071,SFR,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xtm2snfdglsv.pdf,missing current position fields: ['new_percent'],2026-03-26T12:49:32Z
+03076055,LLC,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xtkwznz1pwnf.pdf,"missing current position fields: ['investment_manager', 'new_percent']",2026-03-26T12:49:47Z
+03075980,PDI,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xtdtc71m12r0.pdf,missing current position fields: ['new_percent'],2026-03-26T12:51:57Z
+03075979,PDI,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xtdr71mg9q23.pdf,missing current position fields: ['new_percent'],2026-03-26T12:52:04Z

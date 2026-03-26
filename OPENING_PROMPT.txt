@@ -1,0 +1,116 @@
+Read CLAUDE.md fully before writing any code.
+
+Build this project front to back in order. Run and fix each step before moving on.
+
+─────────────────────────────────────────────
+STEP 1 — scraper.py
+─────────────────────────────────────────────
+Fetch today's ASX announcements and download substantial holder PDFs.
+
+1. GET https://www.asx.com.au/asx/v2/statistics/todayAnns.do
+2. Parse the HTML table with BeautifulSoup
+3. Filter rows where headline contains "substantial" (case-insensitive)
+4. For each match, extract:
+   - asx_code (ticker column)
+   - headline
+   - announcement_id (idsId parameter in the PDF link)
+   - lodgement_date (today's date)
+   - pdf_url: construct as https://www.asx.com.au/asxpdf/{YYYYMMDD}/pdf/{idsId}.pdf
+5. Skip any announcement_id already in processed_ids.txt
+6. Download new PDFs to pdfs/{announcement_id}.pdf
+
+Test: run scraper.py standalone and confirm PDFs appear in pdfs/
+
+─────────────────────────────────────────────
+STEP 2 — parser.py
+─────────────────────────────────────────────
+Two-tier parser as described in CLAUDE.md.
+
+Tier 1 (pdfplumber):
+- Extract full text from PDF
+- Regex search for: investment_manager, previous_percent, new_percent, date_of_change
+- All 4 found → confidence="high", parse_method="rule-based", return result
+- Any missing → go to Tier 2
+
+Tier 2 (Claude API):
+- Model: claude-sonnet-4-20250514
+- Send extracted text with the system prompt from CLAUDE.md
+- Parse JSON response strictly
+- Fields present → confidence="low", parse_method="ai"
+- Still missing required fields → confidence="needs_review"
+
+Test: run parser.py against every PDF in test_pdfs/ and print results table.
+
+─────────────────────────────────────────────
+STEP 3 — output.py
+─────────────────────────────────────────────
+- Append rows to output.csv
+- Create with headers if file doesn't exist
+- Deduplicate on announcement_id before writing
+
+─────────────────────────────────────────────
+STEP 4 — notifier.py
+─────────────────────────────────────────────
+- Send Gmail SMTP email when confidence != "high"
+- Use env vars: ALERT_EMAIL_FROM, ALERT_EMAIL_TO, SMTP_PASSWORD
+- Port 587, STARTTLS
+- Include: announcement_id, asx_code, pdf_url, confidence, missing fields
+
+─────────────────────────────────────────────
+STEP 5 — main.py
+─────────────────────────────────────────────
+Orchestrate all modules. Core loop:
+
+  check trading day → exit cleanly if not
+  announcements = scraper.get_announcements()
+  for each announcement:
+    try:
+      download pdf
+      parse pdf
+      write to csv
+      send alert if confidence != "high"
+      mark as processed
+    except → log and continue (NEVER crash full pipeline)
+
+Test: python main.py end to end → output.csv populated.
+
+─────────────────────────────────────────────
+STEP 6 — tests/
+─────────────────────────────────────────────
+- pytest tests for parser.py using real PDFs in test_pdfs/
+- First: use pdfplumber to print text from each test PDF, define expected values
+- Assert required fields extracted correctly for each PDF
+- Test deduplication logic in output.py
+- Test trading day check
+- Run: pytest tests/ -v — all must pass
+
+─────────────────────────────────────────────
+STEP 7 — .github/workflows/scraper.yml
+─────────────────────────────────────────────
+- Schedule: cron '0 * * * 1-5'
+- OS: ubuntu-latest, Python 3.11
+- Cache pip dependencies
+- Install: pip install -r requirements.txt
+- Inject secrets as env vars (see CLAUDE.md)
+- Run: python main.py
+- Commit back: processed_ids.txt, output.csv, needs_review.csv
+  (permissions: contents: write, use GITHUB_TOKEN)
+- Upload output.csv as artifact "asx-output", retention 30 days
+
+─────────────────────────────────────────────
+STEP 8 — Housekeeping
+─────────────────────────────────────────────
+- requirements.txt with pinned versions
+- .gitignore as specified in CLAUDE.md
+- Verify zero secrets in any committed file
+- Final: pytest tests/ -v — all pass
+
+─────────────────────────────────────────────
+RULES (apply throughout)
+─────────────────────────────────────────────
+- Never hardcode secrets — always os.environ / python-dotenv
+- Every module: try/except that logs and continues
+- Log all activity to scraper.log with ISO timestamps
+- Run tests after EVERY step, not just at the end
+- Do not ask permission to run commands or install packages — just do it
+- Do not stop until main.py runs end to end AND all pytest pass
