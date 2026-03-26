@@ -13,3 +13,6 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03076055,LLC,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xtkwznz1pwnf.pdf,"missing current position fields: ['investment_manager', 'new_percent']",2026-03-26T12:49:47Z
 03075980,PDI,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xtdtc71m12r0.pdf,missing current position fields: ['new_percent'],2026-03-26T12:51:57Z
 03075979,PDI,https://announcements.asx.com.au/asxpdf/20260326/pdf/06xtdr71mg9q23.pdf,missing current position fields: ['new_percent'],2026-03-26T12:52:04Z
+03076491,DRO,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvv6m0n4jtj0.pdf,missing current position fields: ['date_of_change'],2026-03-26T21:22:09Z
+03076487,NAN,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvty7c4587m7.pdf,missing current position fields: ['date_of_change'],2026-03-26T21:22:25Z
+03076470,FPH,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvsglqyzy12c.pdf,"missing current position fields: ['investment_manager', 'date_of_change']",2026-03-26T21:23:40Z
