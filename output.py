@@ -87,8 +87,9 @@ def append_result(record: dict) -> bool:
 def log_needs_review(announcement_id: str, asx_code: str, pdf_url: str, reason: str) -> None:
     """Append a failed/needs-review entry to needs_review.csv."""
     try:
-        from datetime import datetime, timezone
-        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        timestamp = datetime.now(ZoneInfo("Australia/Sydney")).strftime("%Y-%m-%dT%H:%M:%S+11:00")
 
         file_exists = NEEDS_REVIEW_CSV.exists()
         with open(NEEDS_REVIEW_CSV, "a", newline="", encoding="utf-8") as f:

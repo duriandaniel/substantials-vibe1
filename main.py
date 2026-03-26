@@ -4,24 +4,32 @@ main.py — Orchestrate the ASX substantial holder scraper pipeline.
 import logging
 import os
 import sys
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
+
+SYDNEY_TZ = ZoneInfo("Australia/Sydney")
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configure logging before importing other modules
-logging.basicConfig(
-    filename="scraper.log",
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(message)s",
-    datefmt="%Y-%m-%dT%H:%M:%S",
-)
-# Also log to console
+# Configure logging before importing other modules — timestamps in Sydney time
+class _SydneyFormatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        from zoneinfo import ZoneInfo
+        from datetime import datetime
+        dt = datetime.fromtimestamp(record.created, tz=ZoneInfo("Australia/Sydney"))
+        return dt.strftime(datefmt or "%Y-%m-%dT%H:%M:%S%z")
+
+_fmt = "%(asctime)s %(levelname)s %(message)s"
+_file_handler = logging.FileHandler("scraper.log")
+_file_handler.setFormatter(_SydneyFormatter(_fmt))
+logging.basicConfig(level=logging.INFO, handlers=[_file_handler])
+
 _console = logging.StreamHandler(sys.stdout)
 _console.setLevel(logging.INFO)
-_console.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s", "%Y-%m-%dT%H:%M:%S"))
+_console.setFormatter(_SydneyFormatter(_fmt))
 logging.getLogger().addHandler(_console)
 
 logger = logging.getLogger(__name__)
@@ -46,10 +54,15 @@ PDFS_DIR = Path("pdfs")
 CURRENT_POSITION_FIELDS = ["investment_manager", "new_percent", "date_of_change"]
 
 
+def sydney_today() -> date:
+    """Return today's date in Sydney time."""
+    return datetime.now(SYDNEY_TZ).date()
+
+
 def is_trading_day(today: date | None = None) -> bool:
     """Return True if today is an ASX trading day (weekday, not AU public holiday)."""
     if today is None:
-        today = date.today()
+        today = sydney_today()
     date_str = today.strftime("%Y-%m-%d")
     if today.weekday() >= 5:  # Saturday=5, Sunday=6
         logger.info(f"{date_str} is a weekend — not a trading day")
@@ -61,7 +74,7 @@ def is_trading_day(today: date | None = None) -> bool:
 
 
 def run() -> None:
-    today = date.today()
+    today = sydney_today()
     logger.info(f"=== ASX Scraper run started: {today} ===")
 
     if not is_trading_day(today):

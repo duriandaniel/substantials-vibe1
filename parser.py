@@ -66,19 +66,21 @@ def tier1_parse(text: str) -> dict:
     result = {}
     clean = _clean(text)
 
-    # investment_manager — "Name <value>" in section 1 Details
-    # Try multiline version first (preserves blank lines when name is empty)
+    # investment_manager — grab everything between "Details of substantial holder"
+    # and first "ACN/ARSN", then strip the "Name" label.
+    # This handles two-column PDFs where the name wraps around the "Name" label.
     m = re.search(
-        r"Details of substantial holder.*?\bName\s+([^\n\r]+)",
-        text,
+        r"Details of substantial holder[^)]*\)\s*(.*?)\s*ACN/ARSN",
+        clean,
         re.IGNORECASE | re.DOTALL,
     )
     if m:
-        name = m.group(1).strip()
-        # Remove trailing ACN/ARSN noise
-        name = re.sub(r"\s+(ACN|ARSN|APFRN|NFPFRN).*$", "", name, flags=re.IGNORECASE).strip()
-        # Reject if the captured text is just a form label
-        if name and not re.match(r"^(ACN|ARSN|NFPFRN)", name, re.IGNORECASE):
+        name_block = m.group(1)
+        # Remove the "Name" label word and any trailing noise
+        name = re.sub(r"\bName\b", " ", name_block, flags=re.IGNORECASE)
+        name = re.sub(r"\s+", " ", name).strip()
+        # Reject empty or pure-label captures
+        if name and not re.match(r"^(ACN|ARSN|NFPFRN|Not Applicable)", name, re.IGNORECASE):
             result["investment_manager"] = name
     if not result.get("investment_manager"):
         # Fallback for blank-template PDFs: extract from cover letter "from Foo in respect of"
@@ -100,19 +102,22 @@ def tier1_parse(text: str) -> dict:
             result["manager_acn"] = acn
 
     # date_of_change — covers 603 (became), 604 (change), 605 (ceased)
+    # Numeric date: DD/MM/YY or DD/MM/YYYY
+    _d = r"\d{1,2}\s*/\s*\d{1,2}\s*/\s*\d{2,4}"
+    # Textual date: DD Month YYYY or DD/Month/YYYY or DD-Mon-YY
+    _dt = r"\d{1,2}[\s/\-][A-Za-z]{3,9}[\s/\-]\d{2,4}"
+    _any_date = f"(?:{_d}|{_dt})"
     date_patterns = [
-        r"became a substantial holder on\s+(\d{1,2}\s*/\s*\d{1,2}\s*/\s*\d{2,4})",
-        r"ceased to be a substantial holder on\s+(\d{1,2}\s*/\s*\d{1,2}\s*/\s*\d{2,4})",
-        r"change in the interests of the substantial holder on\s+(\d{1,2}/\d{1,2}/\d{2,4})",
-        # 604 variant: date appears before "substantial holder on" due to line break
-        r"interests of the\s+(\d{1,2}/\d{1,2}/\d{2,4})\s+substantial holder on",
-        # Generic: "on DD/MM/YYYY" near "substantial holder"
-        r"substantial holder on\s+(\d{1,2}/\d{1,2}/\d{2,4})",
+        rf"became a substantial holder on\s+({_any_date})",
+        rf"ceased to be a substantial holder on\s+({_any_date})",
+        rf"change in the interests of the substantial holder on\s+({_any_date})",
+        rf"interests of the\s+({_d})\s+substantial holder on",
+        rf"substantial holder on\s+({_any_date})",
     ]
     for pat in date_patterns:
         m = re.search(pat, clean, re.IGNORECASE)
         if m:
-            raw_date = re.sub(r"\s+", "", m.group(1))  # remove spaces around /
+            raw_date = re.sub(r"\s+", " ", m.group(1)).strip()
             result["date_of_change"] = _normalise_date(raw_date)
             break
 
@@ -164,18 +169,61 @@ def tier1_parse(text: str) -> dict:
     return result
 
 
+_MONTH_MAP = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+
+
 def _normalise_date(raw: str) -> str:
-    """Convert DD/MM/YY or DD/MM/YYYY to YYYY-MM-DD."""
+    """Normalise various date formats to YYYY-MM-DD.
+
+    Handles: DD/MM/YY, DD/MM/YYYY, DD-Mon-YY, DD/Month/YYYY, YYYY-MM-DD
+    """
+    raw = raw.strip()
+
+    # Already ISO format
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", raw):
+        return raw
+
+    # DD Month YYYY or DD-Mon-YY (space, dash, or slash separators)
+    m = re.match(r"^(\d{1,2})[\s\-/]([A-Za-z]+)[\s\-/](\d{2,4})$", raw)
+    if m:
+        day, mon_str, year = m.group(1), m.group(2).lower()[:3], m.group(3)
+        month = _MONTH_MAP.get(mon_str)
+        if month:
+            if len(year) == 2:
+                year = "20" + year
+            try:
+                return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
+            except ValueError:
+                pass
+
+    # DD/Month/YYYY (e.g. 24/March/2026)
+    m = re.match(r"^(\d{1,2})/([A-Za-z]+)/(\d{2,4})$", raw)
+    if m:
+        day, mon_str, year = m.group(1), m.group(2).lower()[:3], m.group(3)
+        month = _MONTH_MAP.get(mon_str)
+        if month:
+            if len(year) == 2:
+                year = "20" + year
+            try:
+                return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
+            except ValueError:
+                pass
+
+    # DD/MM/YY or DD/MM/YYYY
     parts = raw.split("/")
-    if len(parts) != 3:
-        return raw
-    day, month, year = parts
-    if len(year) == 2:
-        year = "20" + year
-    try:
-        return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
-    except ValueError:
-        return raw
+    if len(parts) == 3:
+        day, month, year = parts
+        if len(year) == 2:
+            year = "20" + year
+        try:
+            return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
+        except ValueError:
+            pass
+
+    return raw
 
 
 # ---------------------------------------------------------------------------
@@ -272,6 +320,10 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
             for k, v in tier2.items():
                 if v is not None and not result.get(k):
                     result[k] = v
+
+        # Normalise date in case Tier 2 returned a non-ISO format
+        if result.get("date_of_change"):
+            result["date_of_change"] = _normalise_date(result["date_of_change"])
 
         missing_after = [f for f in REQUIRED_FIELDS if not result.get(f)]
         if missing_after:

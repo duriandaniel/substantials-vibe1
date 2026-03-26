@@ -7,6 +7,9 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
+from zoneinfo import ZoneInfo
+
+SYDNEY_TZ = ZoneInfo("Australia/Sydney")
 
 import requests
 from bs4 import BeautifulSoup
@@ -78,7 +81,7 @@ def get_announcements() -> list[dict]:
 
 def _parse_announcements(soup: BeautifulSoup) -> list[dict]:
     """Parse the HTML table and return substantial holder rows."""
-    today = datetime.now().strftime("%Y%m%d")
+    today = datetime.now(SYDNEY_TZ).strftime("%Y%m%d")
     results = []
 
     # Find the announcements table — rows have td elements
@@ -115,7 +118,7 @@ def _parse_announcements(soup: BeautifulSoup) -> list[dict]:
                 "asx_code": asx_code,
                 "headline": headline,
                 "form_type": form_type,
-                "lodgement_date": datetime.now().strftime("%Y-%m-%d"),
+                "lodgement_date": datetime.now(SYDNEY_TZ).strftime("%Y-%m-%d"),
                 "display_url": display_url,
                 "pdf_url": "",  # resolved during download
             })
