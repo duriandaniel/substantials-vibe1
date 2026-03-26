@@ -1,6 +1,7 @@
 """
 Tests for parser.py — uses real PDFs in test_pdfs/.
 """
+import re
 import sys
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import pytest
 # Ensure project root is on path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from parser import parse_pdf, tier1_parse, extract_text
+from parser import parse_pdf, tier1_parse, extract_text, _classify_pages
 
 TEST_PDFS = Path(__file__).parent.parent / "test_pdfs"
 
@@ -201,6 +202,62 @@ class TestBlankTemplatePDFs:
 # ---------------------------------------------------------------------------
 # Test: parse_pdf with announcement metadata
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Test: Image-based PDF (scanned document) — 03076071_SFR_image.pdf
+# ---------------------------------------------------------------------------
+
+class TestImageBasedPDF:
+    PDF = "03076071_SFR_image.pdf"
+
+    def test_detected_as_image_page(self):
+        info = _classify_pages(get_pdf(self.PDF))
+        assert info["has_image_pages"] is True, "Expected image pages to be detected"
+        assert 0 in info["image_page_indices"], "Page 1 should be image-based"
+
+    def test_parse_method_is_vision(self):
+        """Image-based PDFs should use ai-vision parse method."""
+        result = parse_pdf(get_pdf(self.PDF))
+        assert result["parse_method"] == "ai-vision"
+
+    def test_investment_manager_extracted(self):
+        result = parse_pdf(get_pdf(self.PDF))
+        assert result.get("investment_manager") is not None
+        assert "BlackRock" in (result["investment_manager"] or "")
+
+    def test_date_extracted(self):
+        result = parse_pdf(get_pdf(self.PDF))
+        assert result.get("date_of_change") is not None
+        assert re.match(r"\d{4}-\d{2}-\d{2}", result["date_of_change"] or "")
+
+    def test_new_percent_has_percent_sign(self):
+        """Percent values should always include the % symbol."""
+        result = parse_pdf(get_pdf(self.PDF))
+        if result.get("new_percent"):
+            assert "%" in str(result["new_percent"]), "new_percent should contain %"
+
+    def test_confidence_not_high_no_tier1(self):
+        """Image PDFs won't reach Tier 1 high — Tier 2A should give low or needs_review."""
+        result = parse_pdf(get_pdf(self.PDF))
+        assert result["confidence"] in ("low", "needs_review")
+
+
+# ---------------------------------------------------------------------------
+# Test: _classify_pages correctly identifies text vs image pages
+# ---------------------------------------------------------------------------
+
+def test_classify_text_pdf():
+    """A digital text PDF should have no image pages."""
+    info = _classify_pages(get_pdf("06xvfvx606ntnl.pdf"))
+    assert info["has_image_pages"] is False
+    assert len(info["image_page_indices"]) == 0
+
+
+def test_classify_image_pdf():
+    """Scanned PDF should detect image pages."""
+    info = _classify_pages(get_pdf("03076071_SFR_image.pdf"))
+    assert info["has_image_pages"] is True
+
 
 def test_parse_pdf_with_announcement_metadata():
     ann = {
