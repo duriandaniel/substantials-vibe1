@@ -16,3 +16,8 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03076491,DRO,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvv6m0n4jtj0.pdf,missing current position fields: ['date_of_change'],2026-03-26T21:22:09Z
 03076487,NAN,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvty7c4587m7.pdf,missing current position fields: ['date_of_change'],2026-03-26T21:22:25Z
 03076470,FPH,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvsglqyzy12c.pdf,"missing current position fields: ['investment_manager', 'date_of_change']",2026-03-26T21:23:40Z
+03076539,LLC,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvyj098prp0c.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-26T22:17:46Z
+03076512,WAF,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvwn98j39v44.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-26T22:17:58Z
+03076511,SFR,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvwl5nck1p3g.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-26T22:18:07Z
+03076504,AAI,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvw3brrj7rsq.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-26T22:18:13Z
+03076503,WAF,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvw16lf910d0.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-26T22:18:25Z
