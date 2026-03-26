@@ -21,3 +21,4 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03076511,SFR,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvwl5nck1p3g.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-26T22:18:07Z
 03076504,AAI,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvw3brrj7rsq.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-26T22:18:13Z
 03076503,WAF,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xvw16lf910d0.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-26T22:18:25Z
+03076641,KAI,https://announcements.asx.com.au/asxpdf/20260327/pdf/06xw5w6s4p1rsg.pdf,"missing current position fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-03-27T10:20:54+11:00
