@@ -76,7 +76,8 @@ def append_result(record: dict) -> bool:
             writer = csv.DictWriter(f, fieldnames=CSV_HEADERS, extrasaction="ignore")
             if not file_exists or OUTPUT_CSV.stat().st_size == 0:
                 writer.writeheader()
-            writer.writerow({h: record.get(h, "") or "" for h in CSV_HEADERS})
+            sanitized = {h: str(record.get(h, "") or "").replace(",", "") for h in CSV_HEADERS}
+            writer.writerow(sanitized)
 
         logger.info(f"Wrote record {ann_id} to {OUTPUT_CSV}")
         return True
