@@ -113,8 +113,13 @@ def _parse_announcements(soup: BeautifulSoup) -> list[dict]:
             # pdf_url will be resolved at download time from the display page
             display_url = ASX_DISPLAY_URL.format(ids_id=ids_id)
 
-            # Time is in the first cell (e.g. "10:15 AM" or "10:15")
-            lodgement_time = cells[0].get_text(strip=True) if cells else ""
+            # Find the time cell — looks like "10:15 AM" or "10:15"
+            lodgement_time = ""
+            for cell in cells:
+                t = cell.get_text(strip=True)
+                if re.match(r"^\d{1,2}:\d{2}", t):
+                    lodgement_time = t
+                    break
 
             results.append({
                 "announcement_id": ids_id,
