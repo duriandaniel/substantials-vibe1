@@ -49,9 +49,16 @@ AU_PUBLIC_HOLIDAYS = {
 }
 
 PDFS_DIR = Path("pdfs")
-# Alert only when current position data is missing — previous position is nice-to-have.
-# 603 forms (initial holder) never have previous_percent by design.
-CURRENT_POSITION_FIELDS = ["investment_manager", "new_percent", "date_of_change"]
+
+# Alert fields are form-type aware:
+# 605 (cease) — holder dropped below 5%, new_percent is not applicable
+# 603/604     — we need current position (new_percent) to be useful
+ALERT_FIELDS_BY_FORM = {
+    "603": ["investment_manager", "new_percent", "date_of_change"],
+    "604": ["investment_manager", "new_percent", "date_of_change"],
+    "605": ["investment_manager", "date_of_change"],
+    "":    ["investment_manager", "new_percent", "date_of_change"],
+}
 
 
 def sydney_today() -> date:
@@ -124,20 +131,20 @@ def run() -> None:
             output.append_result(parsed)
 
             confidence = parsed.get("confidence", "needs_review")
+            form_type = parsed.get("form_type") or ann.get("form_type") or ""
+            alert_fields = ALERT_FIELDS_BY_FORM.get(form_type, ALERT_FIELDS_BY_FORM[""])
+            missing_current = [f for f in alert_fields if not parsed.get(f)]
 
-            # Missing current position fields — these trigger alerts and needs_review logging
-            missing_current = [f for f in CURRENT_POSITION_FIELDS if not parsed.get(f)]
-
-            # Log to needs_review.csv only when current position data is incomplete
+            # Log to needs_review.csv only when form-relevant fields are missing
             if missing_current:
                 output.log_needs_review(
                     ids_id,
                     ann.get("asx_code", ""),
                     parsed.get("pdf_url", ""),
-                    f"missing current position fields: {missing_current}",
+                    f"missing fields: {missing_current}",
                 )
 
-            # Send alert only when current position data is missing
+            # Send alert only when form-relevant fields are missing
             if missing_current:
                 notifier.send_alert(parsed, missing_current)
 

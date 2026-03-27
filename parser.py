@@ -27,10 +27,19 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-# Fields required to consider a parse successful.
-# previous_percent excluded — 603 forms never have it.
+# Required fields vary by form type:
+#   603 (initial holder)  — new_percent is the current position; no previous
+#   604 (change)          — new_percent required; previous is nice-to-have
+#   605 (cease)           — holder dropped below 5%; new_percent not applicable
+REQUIRED_FIELDS_BY_FORM = {
+    "603": ["investment_manager", "new_percent", "date_of_change"],
+    "604": ["investment_manager", "new_percent", "date_of_change"],
+    "605": ["investment_manager", "date_of_change"],   # no new_percent for cease
+    "":    ["investment_manager", "new_percent", "date_of_change"],  # unknown form
+}
+# Default (used externally)
 REQUIRED_FIELDS = ["investment_manager", "new_percent", "date_of_change"]
-OPTIONAL_FIELDS  = ["previous_percent", "previous_shares"]
+OPTIONAL_FIELDS = ["previous_percent", "previous_shares"]
 
 CLAUDE_MODEL = "claude-sonnet-4-20250514"
 
@@ -340,6 +349,38 @@ def tier2b_text_parse(text: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Action type derivation
+# ---------------------------------------------------------------------------
+
+def _derive_action_type(form_type: str, previous_percent: str | None, new_percent: str | None) -> str:
+    """
+    Derive a human-readable action type from form type and percent values.
+
+    603 → initial        (became substantial holder, crossed 5% threshold)
+    605 → cease          (dropped below 5%, no longer substantial holder)
+    604 → increase / decrease / change  (based on comparing percents)
+    """
+    ft = (form_type or "").strip()
+    if ft == "603":
+        return "initial"
+    if ft == "605":
+        return "cease"
+    if ft == "604":
+        try:
+            prev = float(str(previous_percent or "").replace("%", "").strip())
+            curr = float(str(new_percent or "").replace("%", "").strip())
+            if curr > prev:
+                return "increase"
+            if curr < prev:
+                return "decrease"
+            return "change"
+        except (ValueError, TypeError):
+            return "change"
+    # Unknown form type — infer from headline keywords stored in form_type field
+    return "change"
+
+
+# ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
 
@@ -356,6 +397,7 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
         "asx_code":         ann.get("asx_code", ""),
         "company_name":     ann.get("company_name", ""),
         "form_type":        ann.get("form_type", ""),
+        "action_type":      None,
         "lodgement_date":   ann.get("lodgement_date", ""),
         "pdf_url":          ann.get("pdf_url", ""),
         "investment_manager": None,
@@ -386,13 +428,20 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
                 f"{page_info['image_page_indices']}"
             )
 
+        # Use form-type-aware required fields
+        form_type = result.get("form_type") or ann.get("form_type") or ""
+        required = REQUIRED_FIELDS_BY_FORM.get(form_type, REQUIRED_FIELDS_BY_FORM[""])
+
         # ── Tier 1 ──────────────────────────────────────────────────────────
         t1 = tier1_parse(text)
         result.update({k: v for k, v in t1.items() if v is not None})
 
-        missing = [f for f in REQUIRED_FIELDS if not result.get(f)]
+        missing = [f for f in required if not result.get(f)]
         if not missing:
             result.update(confidence="high", parse_method="rule-based")
+            result["action_type"] = _derive_action_type(
+                form_type, result.get("previous_percent"), result.get("new_percent")
+            )
             logger.info(f"Tier 1 success for {pdf_path}")
             return result
 
@@ -400,11 +449,9 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
 
         # ── Tier 2 ──────────────────────────────────────────────────────────
         if page_info["has_image_pages"]:
-            # Image pages: use Vision API
             t2 = tier2a_vision_parse(pdf_path, page_info["image_page_indices"])
             parse_method = "ai-vision"
         else:
-            # Text PDF: use text API
             t2 = tier2b_text_parse(text)
             parse_method = "ai"
 
@@ -422,18 +469,22 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
             v = result.get(pct_field)
             if v and str(v) != "null" and "%" not in str(v):
                 try:
-                    float(str(v))   # only add % if it's a numeric string
+                    float(str(v))
                     result[pct_field] = f"{v}%"
                 except ValueError:
                     pass
 
-        missing_after = [f for f in REQUIRED_FIELDS if not result.get(f)]
+        missing_after = [f for f in required if not result.get(f)]
         if missing_after:
             result.update(confidence="needs_review", parse_method=parse_method)
             logger.warning(f"Still missing {missing_after} after Tier 2 for {pdf_path}")
         else:
             result.update(confidence="low", parse_method=parse_method)
             logger.info(f"Tier 2 success for {pdf_path}: method={parse_method}")
+
+        result["action_type"] = _derive_action_type(
+            form_type, result.get("previous_percent"), result.get("new_percent")
+        )
 
     except Exception as e:
         logger.error(f"parse_pdf failed for {pdf_path}: {e}", exc_info=True)

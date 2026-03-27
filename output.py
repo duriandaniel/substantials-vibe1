@@ -15,6 +15,7 @@ CSV_HEADERS = [
     "asx_code",
     "company_name",
     "form_type",
+    "action_type",
     "lodgement_date",
     "date_of_change",
     "investment_manager",
