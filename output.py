@@ -17,6 +17,7 @@ CSV_HEADERS = [
     "form_type",
     "action_type",
     "lodgement_date",
+    "lodgement_time",
     "date_of_change",
     "investment_manager",
     "manager_acn",

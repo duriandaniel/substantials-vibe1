@@ -157,6 +157,19 @@ def _normalise_date(raw: str) -> str:
     return raw
 
 
+def _detect_form_type(text: str) -> str:
+    """Detect form type from PDF text content as a fallback when not known from headline."""
+    clean = _clean(text)
+    # ASX forms reference themselves by number or appendix name
+    if re.search(r"\b(Form\s*603|Appendix\s*6[Aa]|became a substantial holder)\b", clean, re.IGNORECASE):
+        return "603"
+    if re.search(r"\b(Form\s*604|Appendix\s*6[Bb]|change in the interests of the substantial holder)\b", clean, re.IGNORECASE):
+        return "604"
+    if re.search(r"\b(Form\s*605|Appendix\s*6[Cc]|ceased to be a substantial holder)\b", clean, re.IGNORECASE):
+        return "605"
+    return ""
+
+
 def tier1_parse(text: str) -> dict:
     """Regex extraction from PDF text. Returns whatever fields can be found."""
     result = {}
@@ -399,6 +412,7 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
         "form_type":        ann.get("form_type", ""),
         "action_type":      None,
         "lodgement_date":   ann.get("lodgement_date", ""),
+        "lodgement_time":   ann.get("lodgement_time", ""),
         "pdf_url":          ann.get("pdf_url", ""),
         "investment_manager": None,
         "manager_acn":        None,
@@ -428,8 +442,13 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
                 f"{page_info['image_page_indices']}"
             )
 
-        # Use form-type-aware required fields
+        # Use form-type-aware required fields — detect from PDF text if not set by scraper
         form_type = result.get("form_type") or ann.get("form_type") or ""
+        if not form_type:
+            form_type = _detect_form_type(text)
+            if form_type:
+                result["form_type"] = form_type
+                logger.info(f"Form type detected from PDF text: {form_type}")
         required = REQUIRED_FIELDS_BY_FORM.get(form_type, REQUIRED_FIELDS_BY_FORM[""])
 
         # ── Tier 1 ──────────────────────────────────────────────────────────

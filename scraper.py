@@ -113,12 +113,16 @@ def _parse_announcements(soup: BeautifulSoup) -> list[dict]:
             # pdf_url will be resolved at download time from the display page
             display_url = ASX_DISPLAY_URL.format(ids_id=ids_id)
 
+            # Time is in the first cell (e.g. "10:15 AM" or "10:15")
+            lodgement_time = cells[0].get_text(strip=True) if cells else ""
+
             results.append({
                 "announcement_id": ids_id,
                 "asx_code": asx_code,
                 "headline": headline,
                 "form_type": form_type,
                 "lodgement_date": datetime.now(SYDNEY_TZ).strftime("%Y-%m-%d"),
+                "lodgement_time": lodgement_time,
                 "display_url": display_url,
                 "pdf_url": "",  # resolved during download
             })
@@ -172,7 +176,7 @@ def _extract_asx_code(cells, href: str) -> str:
 
 def _infer_form_type(headline: str) -> str:
     headline_lower = headline.lower()
-    if "603" in headline or "initial" in headline_lower:
+    if "603" in headline or "initial" in headline_lower or "becom" in headline_lower:
         return "603"
     if "604" in headline or "change" in headline_lower:
         return "604"
