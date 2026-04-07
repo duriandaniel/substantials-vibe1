@@ -49,6 +49,9 @@ _EXTRACTION_PROMPT = (
     "holder notice. Return ONLY valid JSON with these exact keys: "
     "investment_manager, manager_acn, date_of_change, previous_shares, "
     "previous_percent, new_shares, new_percent, consideration. "
+    "IMPORTANT: for new_shares and previous_shares, extract ONLY the holder's "
+    "'Person's votes' (shares held by the filer), NOT 'Total votes' or total shares "
+    "outstanding for the company. "
     "Use null for any field you cannot find. No preamble, no markdown."
 )
 
@@ -221,22 +224,35 @@ def tier1_parse(text: str) -> dict:
             break
 
     # Voting power — Form 604 has previous + present columns
+    # Also capture share counts from the same table row
     m604 = re.search(
-        r"Ordinary\s+[\d,]+\s+([\d.]+%)\s+[\d,]+\s+([\d.]+%)", clean, re.IGNORECASE
+        r"Ordinary\s+([\d,]+)\s+([\d.]+%)\s+([\d,]+)\s+([\d.]+%)", clean, re.IGNORECASE
     )
     if m604:
-        result["previous_percent"] = m604.group(1)
-        result["new_percent"]      = m604.group(2)
+        result["previous_shares"] = m604.group(1).replace(",", "")
+        result["previous_percent"] = m604.group(2)
+        result["new_shares"]      = m604.group(3).replace(",", "")
+        result["new_percent"]     = m604.group(4)
     else:
-        vp = re.findall(r"(\d+\.\d+%)", clean)
-        if vp:
-            result["new_percent"] = vp[-1]
+        # Form 603 single-column: Ordinary | shares | %
+        m603 = re.search(
+            r"Ordinary\s+([\d,]+)\s+([\d.]+%)", clean, re.IGNORECASE
+        )
+        if m603:
+            result["new_shares"]  = m603.group(1).replace(",", "")
+            result["new_percent"] = m603.group(2)
+        else:
+            vp = re.findall(r"(\d+\.\d+%)", clean)
+            if vp:
+                result["new_percent"] = vp[-1]
 
-    # Share counts
-    shares = re.findall(r"\b(\d{1,3}(?:,\d{3})+)\b", clean)
-    if shares:
-        counts = sorted([int(s.replace(",", "")) for s in shares], reverse=True)
-        result["new_shares"] = str(counts[0])
+    # Person's votes — most reliable holder share count (overrides table extraction)
+    m_pv = re.search(
+        r"person['\u2019s]*\s+votes?\s*[:\|]?\s*([\d,]+)",
+        clean, re.IGNORECASE,
+    )
+    if m_pv:
+        result["new_shares"] = m_pv.group(1).replace(",", "")
 
     m_prev = re.search(
         r"Previous notice\s+Present notice.*?(\d{1,3}(?:,\d{3})+)\s+[\d.]+%"
@@ -362,6 +378,63 @@ def tier2b_text_parse(text: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Post-processing helpers
+# ---------------------------------------------------------------------------
+
+def _sanitize_percent(value: str | None) -> str | None:
+    """Return None if percent is below 5% (not a valid substantial holding threshold)."""
+    if not value:
+        return value
+    try:
+        pct = float(str(value).replace("%", "").strip())
+        if pct < 5.0:
+            return None
+    except (ValueError, TypeError):
+        pass
+    return value
+
+
+def _shorten_manager_name(name: str) -> str:
+    """
+    Shorten an investment manager name to ≤5 words using Claude API.
+    Falls back to first 5 words if API is unavailable.
+    """
+    if not name:
+        return name
+    words = name.split()
+    if len(words) <= 5:
+        return name
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return " ".join(words[:5])
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=30,
+            messages=[{
+                "role": "user",
+                "content": (
+                    "Shorten this investment manager / fund name to 5 words or fewer. "
+                    "Return ONLY the shortened name, nothing else. "
+                    "Use the most recognizable brand name (e.g. 'BlackRock', 'Vanguard', "
+                    "'JPMorgan Chase', 'State Street'). "
+                    f"Name: {name}"
+                ),
+            }],
+            timeout=15,
+        )
+        short = message.content[0].text.strip().strip('"').strip("'")
+        logger.info(f"Shortened manager: '{name[:60]}' → '{short}'")
+        return short
+    except Exception as e:
+        logger.warning(f"Could not shorten manager name: {e}")
+        return " ".join(words[:5])
+
+
+# ---------------------------------------------------------------------------
 # Action type derivation
 # ---------------------------------------------------------------------------
 
@@ -458,48 +531,44 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
         missing = [f for f in required if not result.get(f)]
         if not missing:
             result.update(confidence="high", parse_method="rule-based")
-            result["action_type"] = _derive_action_type(
-                form_type, result.get("previous_percent"), result.get("new_percent")
-            )
             logger.info(f"Tier 1 success for {pdf_path}")
-            return result
-
-        logger.info(f"Tier 1 missing {missing} for {pdf_path} — escalating")
-
-        # ── Tier 2 ──────────────────────────────────────────────────────────
-        if page_info["has_image_pages"]:
-            t2 = tier2a_vision_parse(pdf_path, page_info["image_page_indices"])
-            parse_method = "ai-vision"
         else:
-            t2 = tier2b_text_parse(text)
-            parse_method = "ai"
+            logger.info(f"Tier 1 missing {missing} for {pdf_path} — escalating")
 
-        if t2:
-            for k, v in t2.items():
-                if v is not None and not result.get(k):
-                    result[k] = v
+            # ── Tier 2 ──────────────────────────────────────────────────────
+            if page_info["has_image_pages"]:
+                t2 = tier2a_vision_parse(pdf_path, page_info["image_page_indices"])
+                parse_method = "ai-vision"
+            else:
+                t2 = tier2b_text_parse(text)
+                parse_method = "ai"
 
-        # Normalise date regardless of which tier produced it
-        if result.get("date_of_change"):
-            result["date_of_change"] = _normalise_date(result["date_of_change"])
+            if t2:
+                for k, v in t2.items():
+                    if v is not None and not result.get(k):
+                        result[k] = v
 
-        # Normalise percent fields — add % sign if missing (Vision API sometimes omits it)
-        for pct_field in ("new_percent", "previous_percent"):
-            v = result.get(pct_field)
-            if v and str(v) != "null" and "%" not in str(v):
-                try:
-                    float(str(v))
-                    result[pct_field] = f"{v}%"
-                except ValueError:
-                    pass
+            # Normalise date regardless of which tier produced it
+            if result.get("date_of_change"):
+                result["date_of_change"] = _normalise_date(result["date_of_change"])
 
-        missing_after = [f for f in required if not result.get(f)]
-        if missing_after:
-            result.update(confidence="needs_review", parse_method=parse_method)
-            logger.warning(f"Still missing {missing_after} after Tier 2 for {pdf_path}")
-        else:
-            result.update(confidence="low", parse_method=parse_method)
-            logger.info(f"Tier 2 success for {pdf_path}: method={parse_method}")
+            # Normalise percent fields — add % sign if missing (Vision API sometimes omits it)
+            for pct_field in ("new_percent", "previous_percent"):
+                v = result.get(pct_field)
+                if v and str(v) != "null" and "%" not in str(v):
+                    try:
+                        float(str(v))
+                        result[pct_field] = f"{v}%"
+                    except ValueError:
+                        pass
+
+            missing_after = [f for f in required if not result.get(f)]
+            if missing_after:
+                result.update(confidence="needs_review", parse_method=parse_method)
+                logger.warning(f"Still missing {missing_after} after Tier 2 for {pdf_path}")
+            else:
+                result.update(confidence="low", parse_method=parse_method)
+                logger.info(f"Tier 2 success for {pdf_path}: method={parse_method}")
 
         result["action_type"] = _derive_action_type(
             form_type, result.get("previous_percent"), result.get("new_percent")
@@ -508,6 +577,14 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
     except Exception as e:
         logger.error(f"parse_pdf failed for {pdf_path}: {e}", exc_info=True)
         result.update(confidence="needs_review", parse_method="none")
+
+    # Sanitize: null out any percent < 5% (not a valid substantial holding)
+    result["new_percent"]      = _sanitize_percent(result.get("new_percent"))
+    result["previous_percent"] = _sanitize_percent(result.get("previous_percent"))
+
+    # Shorten manager name to ≤5 words
+    if result.get("investment_manager"):
+        result["investment_manager"] = _shorten_manager_name(result["investment_manager"])
 
     return result
 

@@ -145,7 +145,9 @@ def run() -> None:
                 )
 
             # Send alert only when form-relevant fields are missing
-            if missing_current:
+            # Skip alerts for 605 (cease) — holder simply dropped below 5%, no data expected
+            is_cease = (parsed.get("form_type") or ann.get("form_type", "")) == "605"
+            if missing_current and not is_cease:
                 notifier.send_alert(parsed, missing_current)
 
             # Mark as processed

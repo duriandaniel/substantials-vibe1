@@ -113,12 +113,14 @@ def _parse_announcements(soup: BeautifulSoup) -> list[dict]:
             # pdf_url will be resolved at download time from the display page
             display_url = ASX_DISPLAY_URL.format(ids_id=ids_id)
 
-            # Find the time cell — looks like "10:15 AM" or "10:15"
+            # ASX date/time cell format: "07/04/2026 3:25 pm" — extract just the time.
+            # AM/PM is always present in ASX times so require it to avoid false matches.
             lodgement_time = ""
             for cell in cells:
-                t = cell.get_text(strip=True)
-                if re.match(r"^\d{1,2}:\d{2}", t):
-                    lodgement_time = t
+                t = cell.get_text(separator=" ", strip=True)
+                m_time = re.search(r"\b(\d{1,2}:\d{2}\s*[AaPp][Mm])\b", t)
+                if m_time:
+                    lodgement_time = m_time.group(1).strip()
                     break
 
             results.append({
