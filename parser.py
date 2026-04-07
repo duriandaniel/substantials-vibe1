@@ -32,9 +32,9 @@ logger = logging.getLogger(__name__)
 #   604 (change)          — new_percent required; previous is nice-to-have
 #   605 (cease)           — holder dropped below 5%; new_percent not applicable
 REQUIRED_FIELDS_BY_FORM = {
-    "603": ["investment_manager", "new_percent", "date_of_change"],
-    "604": ["investment_manager", "new_percent", "date_of_change"],
-    "605": ["investment_manager", "date_of_change"],   # no new_percent for cease
+    "603": ["investment_manager", "new_shares", "new_percent", "date_of_change"],
+    "604": ["investment_manager", "new_shares", "new_percent", "date_of_change"],
+    "605": ["investment_manager", "date_of_change"],   # no new_percent/shares for cease
     "":    ["investment_manager", "new_percent", "date_of_change"],  # unknown form
 }
 # Default (used externally)
@@ -133,6 +133,17 @@ def _normalise_date(raw: str) -> str:
     if re.match(r"^\d{4}-\d{2}-\d{2}$", raw):
         return raw
 
+    # Month DD, YYYY  (e.g. "April 01, 2026" or "March 31 2026")
+    m = re.match(r"^([A-Za-z]{3,9})\s+(\d{1,2}),?\s+(\d{4})$", raw)
+    if m:
+        mon_str, day, year = m.group(1).lower()[:3], m.group(2), m.group(3)
+        month = _MONTH_MAP.get(mon_str)
+        if month:
+            try:
+                return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
+            except ValueError:
+                pass
+
     # DD Month YYYY / DD-Mon-YY / DD/Month/YYYY (any separator)
     m = re.match(r"^(\d{1,2})[\s\-/]([A-Za-z]+)[\s\-/](\d{2,4})$", raw)
     if m:
@@ -210,11 +221,13 @@ def tier1_parse(text: str) -> dict:
     # date_of_change — all known formats
     _d   = r"\d{1,2}\s*/\s*\d{1,2}\s*/\s*\d{2,4}"
     _dt  = r"\d{1,2}[\s/\-][A-Za-z]{3,9}[\s/\-]\d{2,4}"
-    _any = f"(?:{_d}|{_dt})"
+    _mdy = r"[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}"          # April 01, 2026
+    _any = f"(?:{_d}|{_dt}|{_mdy})"
     for pat in [
         rf"became a substantial holder on\s+({_any})",
         rf"ceased to be a substantial holder on\s+({_any})",
         rf"change in the interests of the substantial holder on\s+({_any})",
+        rf"change in the interests of the\s+({_any})\s+substantial holder",   # inline date
         rf"interests of the\s+({_d})\s+substantial holder on",
         rf"substantial holder on\s+({_any})",
     ]:
@@ -224,9 +237,11 @@ def tier1_parse(text: str) -> dict:
             break
 
     # Voting power — Form 604 has previous + present columns
-    # Also capture share counts from the same table row
+    # Also capture share counts from the same table row.
+    # "Ordinary Shares" and "Ordinary" are both used in ASX forms.
     m604 = re.search(
-        r"Ordinary\s+([\d,]+)\s+([\d.]+%)\s+([\d,]+)\s+([\d.]+%)", clean, re.IGNORECASE
+        r"Ordinary\s+(?:Shares\s+)?([\d,]+)\s+([\d.]+%)\s+([\d,]+)\s+([\d.]+%)",
+        clean, re.IGNORECASE,
     )
     if m604:
         result["previous_shares"] = m604.group(1).replace(",", "")
@@ -234,9 +249,12 @@ def tier1_parse(text: str) -> dict:
         result["new_shares"]      = m604.group(3).replace(",", "")
         result["new_percent"]     = m604.group(4)
     else:
-        # Form 603 single-column: Ordinary | shares | %
+        # Form 603 single-column: Ordinary [Shares] | shares | %
+        # Some forms add a "Number of securities" column before "Person's votes", giving
+        # "Ordinary Shares N N %" — match the last number before the percent.
         m603 = re.search(
-            r"Ordinary\s+([\d,]+)\s+([\d.]+%)", clean, re.IGNORECASE
+            r"Ordinary\s+(?:Shares\s+)?(?:[\d,]+\s+)?([\d,]+)\s+([\d.]+%)",
+            clean, re.IGNORECASE,
         )
         if m603:
             result["new_shares"]  = m603.group(1).replace(",", "")
@@ -246,9 +264,10 @@ def tier1_parse(text: str) -> dict:
             if vp:
                 result["new_percent"] = vp[-1]
 
-    # Person's votes — most reliable holder share count (overrides table extraction)
+    # Person's votes — most reliable holder share count (overrides table extraction).
+    # Allow optional footnote marker "(5)" between label and value.
     m_pv = re.search(
-        r"person['\u2019s]*\s+votes?\s*[:\|]?\s*([\d,]+)",
+        r"person['\u2019s]*\s+votes?\s*(?:\(\d+\))?\s*[:\|]?\s*([\d,]+)",
         clean, re.IGNORECASE,
     )
     if m_pv:
@@ -301,10 +320,10 @@ def tier2a_vision_parse(pdf_path: str | Path, image_page_indices: list[int]) -> 
         logger.warning("ANTHROPIC_API_KEY not set — skipping vision parse")
         return {}
 
-    # Only look at the first 2 image pages — the form data lives there
-    target_pages = [i for i in image_page_indices if i < 2]
+    # Send up to 4 image pages — complex PDFs often have data on pages 2-3 as well
+    target_pages = [i for i in image_page_indices if i < 4]
     if not target_pages:
-        target_pages = image_page_indices[:2]
+        target_pages = image_page_indices[:4]
 
     try:
         images = _render_pages(pdf_path, target_pages)
@@ -509,6 +528,12 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
             result.update(confidence="needs_review", parse_method="none")
             return result
 
+        # Detect blank/unfilled form templates — skip expensive AI tiers
+        if re.search(r"became a substantial holder on\s*/\s*/", text, re.IGNORECASE):
+            logger.warning(f"Blank form template (no data) detected: {pdf_path}")
+            result.update(confidence="needs_review", parse_method="blank_form")
+            return result
+
         if page_info["has_image_pages"]:
             logger.info(
                 f"{pdf_path}: image pages detected at indices "
@@ -547,6 +572,22 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
                 for k, v in t2.items():
                     if v is not None and not result.get(k):
                         result[k] = v
+
+            # For image PDFs: if Vision still left gaps AND the PDF has text pages,
+            # try Tier 2B on the extracted text as a supplemental pass.
+            if parse_method == "ai-vision" and text.strip():
+                missing_after_vision = [f for f in required if not result.get(f)]
+                if missing_after_vision:
+                    logger.info(
+                        f"Tier 2B supplemental text pass for {pdf_path} "
+                        f"(Vision missed: {missing_after_vision})"
+                    )
+                    t2b = tier2b_text_parse(text)
+                    if t2b:
+                        for k, v in t2b.items():
+                            if v is not None and not result.get(k):
+                                result[k] = v
+                        parse_method = "ai-vision+text"
 
             # Normalise date regardless of which tier produced it
             if result.get("date_of_change"):
