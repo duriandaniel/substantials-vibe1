@@ -144,3 +144,15 @@ announcement_id,asx_code,company_name,form_type,action_type,lodgement_date,lodge
 03081121,ZIP,,603,initial,2026-04-09,6:30 pm,,: Bank of America Corporation,,,,66867178,5.26%,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260409/pdf/06yb7khx9l6tx0.pdf
 03081119,BRI,,604,change,2026-04-09,6:23 pm,2026-04-09,CTL (Aust) Pty Ltd,,10574212,,13772071,14.62%,$1.34,rule-based,high,https://announcements.asx.com.au/asxpdf/20260409/pdf/06yb7ct6gfckyj.pdf
 03081117,RLF,,604,decrease,2026-04-09,6:14 pm,2026-04-02,RLF AGTECH LTD,,41378260,8.95%,36378260,6.77%,$0.05,rule-based,high,https://announcements.asx.com.au/asxpdf/20260409/pdf/06yb75myzxytjx.pdf
+03081208,LLC,,603,initial,2026-04-10,8:23 am,,BlackRock Group (BlackRock Inc. and,,,,,,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybm70b1291db.pdf
+03081194,BGL,,604,change,2026-04-10,8:21 am,,,,,,,,,ai-vision,needs_review,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybl8gy5lrrjk.pdf
+03081193,BOE,,603,initial,2026-04-10,8:21 am,2026-04-08,The Bank of New York,,,,,5.55%,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybl6c8h1sbvs.pdf
+03081190,RHC,,603,initial,2026-04-10,8:20 am,2026-04-02,Vanguard Group (The Vanguard Group,,,,11544421,5.001%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybl009569hn3.pdf
+03081189,MP1,,604,increase,2026-04-10,8:20 am,2026-04-02,Vanguard Group (The Vanguard Group,,7979668,5.017%,10712185,6.023%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybkxw29g51s8.pdf
+03081183,IMM,,604,increase,2026-04-10,8:19 am,2026-04-07,JPMorgan Chase & Co. and,,85882903,5.83%,122017715,8.28%,$3739.47,rule-based,high,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybkj3ys4tv90.pdf
+03081179,DUG,,603,initial,2026-04-10,8:18 am,2026-04-07,JPMorgan Chase & Co. and,,,,6878333,5.08%,$4623.51,rule-based,high,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybk7m5n5b0jj.pdf
+03081178,DRO,,603,initial,2026-04-10,8:18 am,2026-04-07,JPMorgan Chase & Co. and,,,,47546490,5.15%,$91.67,rule-based,high,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybk5hjgkgn70.pdf
+03081162,POL,,604,decrease,2026-04-10,8:14 am,2026-04-08,Jupiter Asset Management Limited,,30000000,9.75%,26356172,8.57%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybj2fvfxr8r7.pdf
+03081161,GOW,,604,increase,2026-04-10,8:14 am,2026-04-09,,,4333713,8.0830%,4931202,9.1494%,$2.15,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybj08hvrkt2n.pdf
+03081160,COH,,603,initial,2026-04-10,8:14 am,2026-04-08,The Bank of New York,,,,,5.00%,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybhy48sgsk73.pdf
+03081159,MPK,,604,change,2026-04-10,8:13 am,,The Bank of Nova Scotia,,6603244,,7182104,5.26%,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260410/pdf/06ybhw0m5fctnd.pdf
