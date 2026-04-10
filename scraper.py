@@ -26,6 +26,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 ASX_ANNS_URL = "https://www.asx.com.au/asx/v2/statistics/todayAnns.do"
+ASX_ANNS_BY_DATE_URL = "https://www.asx.com.au/asx/v2/statistics/announcements.do?by=asxCode&asxCode=&timeframe=R&dateReleased={date}"
 ASX_DISPLAY_URL = "https://www.asx.com.au/asx/v2/statistics/displayAnnouncement.do?display=pdf&idsId={ids_id}"
 PROCESSED_IDS_FILE = "processed_ids.txt"
 PDFS_DIR = Path("pdfs")
@@ -59,29 +60,49 @@ def save_processed_id(ids_id: str) -> None:
         logger.error(f"Failed to save processed id {ids_id}: {e}")
 
 
-def get_announcements() -> list[dict]:
-    """Fetch today's ASX announcements and return substantial holder notices."""
+def get_announcements(for_date: str | None = None) -> list[dict]:
+    """Fetch ASX announcements and return substantial holder notices.
+
+    Args:
+        for_date: Optional date string in YYYYMMDD format (e.g. "20260401").
+                  If None, fetches today's announcements.
+    """
     try:
-        resp = requests.get(ASX_ANNS_URL, headers=HEADERS, timeout=30)
+        if for_date:
+            # for_date is YYYYMMDD — convert to DD/MM/YYYY for ASX endpoint
+            date_au = f"{for_date[6:8]}/{for_date[4:6]}/{for_date[:4]}"
+            url = ASX_ANNS_BY_DATE_URL.format(date=date_au)
+        else:
+            url = ASX_ANNS_URL
+        resp = requests.get(url, headers=HEADERS, timeout=30)
         resp.raise_for_status()
-        logger.info(f"Fetched announcements page: HTTP {resp.status_code}")
+        date_label = for_date or "today"
+        logger.info(f"Fetched announcements page for {date_label}: HTTP {resp.status_code}")
     except Exception as e:
         logger.error(f"Failed to fetch announcements: {e}")
         return []
 
     try:
         soup = BeautifulSoup(resp.text, "html.parser")
-        announcements = _parse_announcements(soup)
-        logger.info(f"Found {len(announcements)} substantial holder announcements")
+        # Pass the date so lodgement_date is set correctly for historical fetches
+        lodgement_date = None
+        if for_date:
+            try:
+                lodgement_date = f"{for_date[:4]}-{for_date[4:6]}-{for_date[6:8]}"
+            except (IndexError, ValueError):
+                pass
+        announcements = _parse_announcements(soup, lodgement_date=lodgement_date)
+        logger.info(f"Found {len(announcements)} substantial holder announcements for {for_date or 'today'}")
         return announcements
     except Exception as e:
         logger.error(f"Failed to parse announcements HTML: {e}")
         return []
 
 
-def _parse_announcements(soup: BeautifulSoup) -> list[dict]:
+def _parse_announcements(soup: BeautifulSoup, lodgement_date: str | None = None) -> list[dict]:
     """Parse the HTML table and return substantial holder rows."""
-    today = datetime.now(SYDNEY_TZ).strftime("%Y%m%d")
+    if not lodgement_date:
+        lodgement_date = datetime.now(SYDNEY_TZ).strftime("%Y-%m-%d")
     results = []
 
     # Find the announcements table — rows have td elements
@@ -128,7 +149,7 @@ def _parse_announcements(soup: BeautifulSoup) -> list[dict]:
                 "asx_code": asx_code,
                 "headline": headline,
                 "form_type": form_type,
-                "lodgement_date": datetime.now(SYDNEY_TZ).strftime("%Y-%m-%d"),
+                "lodgement_date": lodgement_date,
                 "lodgement_time": lodgement_time,
                 "display_url": display_url,
                 "pdf_url": "",  # resolved during download

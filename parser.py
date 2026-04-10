@@ -46,9 +46,15 @@ CLAUDE_MODEL = "claude-sonnet-4-20250514"
 # Shared extraction prompt used for both text and vision calls
 _EXTRACTION_PROMPT = (
     "You are a financial document parser. Extract data from this ASX substantial "
-    "holder notice. Return ONLY valid JSON with these exact keys: "
+    "holder notice (Form 603/604/605). Return ONLY valid JSON with these exact keys: "
     "investment_manager, manager_acn, date_of_change, previous_shares, "
     "previous_percent, new_shares, new_percent, consideration. "
+    "CRITICAL for investment_manager: This is the NAME of the substantial holder "
+    "(the entity filing the notice). Look in 'Details of substantial holder (1)' "
+    "section under 'Name', or in the cover letter for the entity name after "
+    "'on behalf of' or 'from'. Return ONLY the entity/company name — NOT "
+    "boilerplate like 'and its controlled bodies corporate' or 'Annexure' references. "
+    "Examples: 'BlackRock Group', 'JPMorgan Chase & Co.', 'Vanguard Group'. "
     "IMPORTANT: for new_shares and previous_shares, extract ONLY the holder's "
     "'Person's votes' (shares held by the filer), NOT 'Total votes' or total shares "
     "outstanding for the company. "
@@ -84,7 +90,11 @@ def _classify_pages(pdf_path: str | Path) -> dict:
     result = {"pages": [], "has_image_pages": False, "image_page_indices": [], "full_text": ""}
     try:
         with pdfplumber.open(str(pdf_path)) as pdf:
-            for i, page in enumerate(pdf.pages):
+            # Only classify first 10 pages — form data is always in the first few pages.
+            # Appendix/trade-table pages beyond that don't affect classification.
+            max_pages = min(len(pdf.pages), 10)
+            for i in range(max_pages):
+                page = pdf.pages[i]
                 raw = page.extract_text() or ""
                 real = _page_real_text(raw)
                 is_image = len(real) < IMAGE_PAGE_THRESHOLD
@@ -189,8 +199,9 @@ def tier1_parse(text: str) -> dict:
     result = {}
     clean = _clean(text)
 
-    # investment_manager — grab block between "Details of substantial holder" and "ACN/ARSN",
-    # remove the "Name" label. Handles two-column layouts where name wraps around label.
+    # investment_manager — multiple extraction strategies, tried in order of reliability
+
+    # Strategy 1: "Details of substantial holder" section → "Name" field → value before "ACN/ARSN"
     m = re.search(
         r"Details of substantial holder[^)]*\)\s*(.*?)\s*ACN/ARSN",
         clean,
@@ -202,11 +213,54 @@ def tier1_parse(text: str) -> dict:
         name = re.sub(r"\s+", " ", name).strip()
         if name and not re.match(r"^(ACN|ARSN|NFPFRN|Not Applicable)", name, re.IGNORECASE):
             result["investment_manager"] = name
+
+    # Strategy 2: "Name of substantial holder" pattern (some forms use this directly)
     if not result.get("investment_manager"):
-        # Cover letter fallback: "from Foo in respect of"
+        m = re.search(
+            r"Name of substantial holder[:\s]+(.+?)(?:\n|ACN|ARSN|ABN|$)",
+            text, re.IGNORECASE,
+        )
+        if m:
+            name = re.sub(r"\s+", " ", m.group(1)).strip()
+            if name and len(name) > 2:
+                result["investment_manager"] = name
+
+    # Strategy 3: Cover letter — "on behalf of [NAME]" pattern
+    if not result.get("investment_manager"):
+        m = re.search(r"on behalf of\s+(.+?)(?:\s+in respect of|\s+we|\s*,|\n)", text, re.IGNORECASE | re.DOTALL)
+        if m:
+            name = re.sub(r"\s+", " ", m.group(1)).strip()
+            # Filter out boilerplate fragments
+            if name and len(name) > 2 and not name.startswith(";"):
+                result["investment_manager"] = name
+
+    # Strategy 4: Cover letter — "from [NAME] in respect of"
+    if not result.get("investment_manager"):
         m = re.search(r"from\s+(.+?)\s+in respect of", text, re.IGNORECASE | re.DOTALL)
         if m:
-            result["investment_manager"] = re.sub(r"\s+", " ", m.group(1)).strip()
+            name = re.sub(r"\s+", " ", m.group(1)).strip()
+            # Filter out boilerplate — if name starts with punctuation or contains "Annexure" it's junk
+            if (name and len(name) > 2
+                    and not name.startswith(";")
+                    and "annexure" not in name.lower()
+                    and "controlled bodies" not in name.lower()):
+                result["investment_manager"] = name
+
+    # Strategy 5: "Notice [is given / was given] by [NAME]"
+    if not result.get("investment_manager"):
+        m = re.search(r"notice\s+(?:is|was)\s+given\s+by\s+(.+?)(?:\s+in respect|\s*[,\n])", text, re.IGNORECASE | re.DOTALL)
+        if m:
+            name = re.sub(r"\s+", " ", m.group(1)).strip()
+            if name and len(name) > 2:
+                result["investment_manager"] = name
+
+    # Strategy 6: Subject line — "Re: [COMPANY] - Substantial Holder Notice from [NAME]"
+    if not result.get("investment_manager"):
+        m = re.search(r"(?:Re|Subject)[:\s]+.*?(?:from|by)\s+(.+?)(?:\n|$)", text, re.IGNORECASE)
+        if m:
+            name = re.sub(r"\s+", " ", m.group(1)).strip()
+            if name and len(name) > 2:
+                result["investment_manager"] = name
 
     # manager_acn
     m = re.search(
@@ -294,9 +348,12 @@ def tier1_parse(text: str) -> dict:
 # Tier 2A — Claude Vision (for image-based pages)
 # ---------------------------------------------------------------------------
 
-def _render_pages(pdf_path: str | Path, page_indices: list[int], zoom: float = 2.5) -> list[bytes]:
-    """Render PDF pages to PNG bytes using PyMuPDF at given zoom level."""
+def _render_pages(pdf_path: str | Path, page_indices: list[int], zoom: float = 2.0) -> list[bytes]:
+    """Render PDF pages to PNG bytes using PyMuPDF at given zoom level.
+    Only renders up to 4 pages to avoid excessive memory usage on large PDFs."""
     images = []
+    # Limit to first 4 pages to avoid OOM on PDFs with many appendix pages
+    page_indices = page_indices[:4]
     try:
         doc = fitz.open(str(pdf_path))
         mat = fitz.Matrix(zoom, zoom)
@@ -305,6 +362,7 @@ def _render_pages(pdf_path: str | Path, page_indices: list[int], zoom: float = 2
                 continue
             pix = doc[i].get_pixmap(matrix=mat)
             images.append(pix.tobytes("png"))
+        doc.close()
     except Exception as e:
         logger.error(f"Page render failed for {pdf_path}: {e}")
     return images
@@ -411,6 +469,26 @@ def _sanitize_percent(value: str | None) -> str | None:
     except (ValueError, TypeError):
         pass
     return value
+
+
+def _clean_manager_name(name: str) -> str | None:
+    """Clean up an investment manager name, removing boilerplate fragments.
+    Returns None if the name is entirely junk."""
+    if not name:
+        return None
+    # Strip leading punctuation/whitespace
+    name = re.sub(r"^[;:,.\s]+", "", name).strip()
+    # Remove trailing boilerplate fragments
+    name = re.sub(r"\s*;\s*and its controlled bodies corporate.*$", "", name, flags=re.IGNORECASE)
+    name = re.sub(r"\s*and its controlled bodies corporate.*$", "", name, flags=re.IGNORECASE)
+    name = re.sub(r"\s*listed in Annexure.*$", "", name, flags=re.IGNORECASE)
+    name = re.sub(r"\s*ABN/.*$", "", name, flags=re.IGNORECASE)
+    name = re.sub(r"\s*NFPFRN.*$", "", name, flags=re.IGNORECASE)
+    name = name.strip()
+    # If nothing meaningful remains, return None
+    if not name or len(name) < 3:
+        return None
+    return name
 
 
 def _shorten_manager_name(name: str) -> str:
@@ -623,7 +701,9 @@ def parse_pdf(pdf_path: str | Path, announcement: dict | None = None) -> dict:
     result["new_percent"]      = _sanitize_percent(result.get("new_percent"))
     result["previous_percent"] = _sanitize_percent(result.get("previous_percent"))
 
-    # Shorten manager name to ≤5 words
+    # Clean then shorten manager name
+    if result.get("investment_manager"):
+        result["investment_manager"] = _clean_manager_name(result["investment_manager"])
     if result.get("investment_manager"):
         result["investment_manager"] = _shorten_manager_name(result["investment_manager"])
 

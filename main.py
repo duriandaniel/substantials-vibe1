@@ -4,7 +4,8 @@ main.py — Orchestrate the ASX substantial holder scraper pipeline.
 import logging
 import os
 import sys
-from datetime import date, datetime
+import time
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -101,6 +102,16 @@ def run() -> None:
         return
 
     logger.info(f"Processing {len(announcements)} announcements")
+    new_count, skipped_count = _process_announcements(announcements, processed_ids)
+
+    logger.info(
+        f"=== Run complete: {new_count} processed, {skipped_count} skipped ==="
+    )
+    print(f"Done: {new_count} new announcements processed, {skipped_count} skipped.")
+
+
+def _process_announcements(announcements: list[dict], processed_ids: set, send_alerts: bool = True) -> tuple[int, int]:
+    """Process a list of announcements. Returns (new_count, skipped_count)."""
     new_count = 0
     skipped_count = 0
 
@@ -113,7 +124,6 @@ def run() -> None:
             continue
 
         try:
-            # Download PDF
             pdf_path = PDFS_DIR / f"{ids_id}.pdf"
             ok = scraper.download_pdf(ann, pdf_path)
             if not ok:
@@ -124,10 +134,7 @@ def run() -> None:
                 processed_ids.add(ids_id)
                 continue
 
-            # Parse PDF
             parsed = parser.parse_pdf(pdf_path, ann)
-
-            # Write to output.csv
             output.append_result(parsed)
 
             confidence = parsed.get("confidence", "needs_review")
@@ -135,22 +142,16 @@ def run() -> None:
             alert_fields = ALERT_FIELDS_BY_FORM.get(form_type, ALERT_FIELDS_BY_FORM[""])
             missing_current = [f for f in alert_fields if not parsed.get(f)]
 
-            # Log to needs_review.csv only when form-relevant fields are missing
             if missing_current:
                 output.log_needs_review(
-                    ids_id,
-                    ann.get("asx_code", ""),
-                    parsed.get("pdf_url", ""),
+                    ids_id, ann.get("asx_code", ""), parsed.get("pdf_url", ""),
                     f"missing fields: {missing_current}",
                 )
 
-            # Send alert only when form-relevant fields are missing
-            # Skip alerts for 605 (cease) — holder simply dropped below 5%, no data expected
             is_cease = (parsed.get("form_type") or ann.get("form_type", "")) == "605"
-            if missing_current and not is_cease:
+            if send_alerts and missing_current and not is_cease:
                 notifier.send_alert(parsed, missing_current)
 
-            # Mark as processed
             scraper.save_processed_id(ids_id)
             processed_ids.add(ids_id)
             new_count += 1
@@ -160,6 +161,12 @@ def run() -> None:
                 f"confidence={confidence} method={parsed.get('parse_method')}"
             )
 
+            # Clean up downloaded PDF to save disk space
+            try:
+                pdf_path.unlink(missing_ok=True)
+            except Exception:
+                pass
+
         except Exception as e:
             logger.error(f"Unexpected error processing {ids_id}: {e}", exc_info=True)
             try:
@@ -167,13 +174,68 @@ def run() -> None:
                 scraper.save_processed_id(ids_id)
                 processed_ids.add(ids_id)
             except Exception:
-                pass  # Never crash
+                pass
+
+    return new_count, skipped_count
+
+
+def backfill(days: int = 30) -> None:
+    """Fetch and process substantial holder notices for the last N trading days."""
+    today = sydney_today()
+    logger.info(f"=== Backfill started: last {days} trading days from {today} ===")
+    print(f"Backfilling last {days} trading days from {today}...")
+
+    processed_ids = scraper.load_processed_ids()
+    logger.info(f"Loaded {len(processed_ids)} previously processed IDs")
+
+    total_new = 0
+    total_skipped = 0
+    days_processed = 0
+
+    # Walk backwards day by day, collecting trading days
+    current = today
+    while days_processed < days:
+        current -= timedelta(days=1)
+
+        if not is_trading_day(current):
+            continue
+
+        date_str = current.strftime("%Y%m%d")
+        date_display = current.strftime("%Y-%m-%d")
+        logger.info(f"--- Backfill: fetching {date_display} ---")
+        print(f"  [{days_processed + 1}/{days}] Fetching {date_display}...", end=" ", flush=True)
+
+        announcements = scraper.get_announcements(for_date=date_str)
+
+        if not announcements:
+            print("no substantial holder notices")
+        else:
+            new_count, skipped_count = _process_announcements(announcements, processed_ids, send_alerts=False)
+            total_new += new_count
+            total_skipped += skipped_count
+            print(f"{len(announcements)} found, {new_count} new, {skipped_count} skipped")
+
+        days_processed += 1
+
+        # Small delay between days to be polite to ASX servers
+        time.sleep(1)
 
     logger.info(
-        f"=== Run complete: {new_count} processed, {skipped_count} skipped ==="
+        f"=== Backfill complete: {total_new} new, {total_skipped} skipped "
+        f"across {days_processed} trading days ==="
     )
-    print(f"Done: {new_count} new announcements processed, {skipped_count} skipped.")
+    print(f"\nBackfill complete: {total_new} new announcements, {total_skipped} skipped "
+          f"across {days_processed} trading days.")
 
 
 if __name__ == "__main__":
-    run()
+    if len(sys.argv) > 1 and sys.argv[1] == "--backfill":
+        days = 30
+        if len(sys.argv) > 2:
+            try:
+                days = int(sys.argv[2])
+            except ValueError:
+                print(f"Invalid days value: {sys.argv[2]}, using default 30")
+        backfill(days=days)
+    else:
+        run()
