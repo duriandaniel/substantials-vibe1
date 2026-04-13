@@ -1587,3 +1587,8 @@ announcement_id,asx_code,company_name,form_type,action_type,lodgement_date,lodge
 03082055,HLI,,605,cease,2026-04-13,5:21 pm,2026-04-09,First Sentier Group Limited ACN,630 725 558,,,,,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260413/pdf/06yfk2xdl7s5jx.pdf
 03082052,AIS,,605,cease,2026-04-13,5:20 pm,2026-04-09,First Sentier Group Limited ACN,630 725 558,,,,,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260413/pdf/06yfjwfg20f4rd.pdf
 03082051,KAR,,604,decrease,2026-04-13,5:18 pm,2026-04-09,First Sentier Group Limited ACN,,64004159,8.80%,55523021,7.78%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260413/pdf/06yfjsz4mffwm0.pdf
+03082154,LLC,,605,cease,2026-04-14,8:15 am,,,,,,,,,ai-vision,needs_review,https://announcements.asx.com.au/asxpdf/20260414/pdf/06yfyzzrh00r0n.pdf
+03082141,LYC,,605,cease,2026-04-14,8:14 am,2026-04-09,JPMorgan Chase & Co. and,,,,,,$1,rule-based,high,https://announcements.asx.com.au/asxpdf/20260414/pdf/06yfy3lfv90f72.pdf
+03082139,DMP,,604,decrease,2026-04-14,8:13 am,2026-04-09,JPMorgan Chase & Co. and,,9215349,9.74%,8137285,8.60%,$72676.92,rule-based,high,https://announcements.asx.com.au/asxpdf/20260414/pdf/06yfxzbk3fc2ws.pdf
+03082126,PEN,,604,change,2026-04-14,8:12 am,2026-04-07,Tees River Uranium Fund Limited,,,,,16.68%,$5928189.90,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260414/pdf/06yfx2wjvd05m1.pdf
+03082116,BRE,,603,initial,2026-04-14,8:10 am,2026-04-09,Bernardo da Veiga,,,,,5.01%,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260414/pdf/06yfwdsk813sxz.pdf
