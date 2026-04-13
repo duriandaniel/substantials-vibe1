@@ -389,3 +389,6 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03081721,PL3,https://announcements.asx.com.au/asxpdf/20260413/pdf/06ydpxpr23n9sg.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-04-13T09:26:38+11:00
 03081705,WTM,https://announcements.asx.com.au/asxpdf/20260413/pdf/06ydnv0318rg8z.pdf,"missing fields: ['new_percent', 'date_of_change']",2026-04-13T09:26:44+11:00
 03081919,REC,https://announcements.asx.com.au/asxpdf/20260413/pdf/06yf5gmb9cgh1y.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-04-13T11:53:08+11:00
+03081974,SXL,https://announcements.asx.com.au/asxpdf/20260413/pdf/06yfbjrnvfgnnn.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-13T14:52:51+11:00
+03081973,KMD,https://announcements.asx.com.au/asxpdf/20260413/pdf/06yfbgftkvcpph.pdf,"missing fields: ['new_percent', 'date_of_change']",2026-04-13T14:52:56+11:00
+03081929,NVX,https://announcements.asx.com.au/asxpdf/20260413/pdf/06yf6cmtb8x51n.pdf,missing fields: ['date_of_change'],2026-04-13T14:53:04+11:00
