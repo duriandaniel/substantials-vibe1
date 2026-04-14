@@ -420,3 +420,4 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03082533,OSX,https://announcements.asx.com.au/asxpdf/20260414/pdf/06ygxb25qjdg6q.pdf,missing fields: ['date_of_change'],2026-04-14T18:23:01+11:00
 03082505,REG,https://announcements.asx.com.au/asxpdf/20260414/pdf/06ygv4glfcbxyr.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-14T18:23:09+11:00
 03082495,KMD,https://announcements.asx.com.au/asxpdf/20260414/pdf/06ygtcw9cw86zw.pdf,"missing fields: ['new_percent', 'date_of_change']",2026-04-14T18:23:17+11:00
+03082569,EQR,https://announcements.asx.com.au/asxpdf/20260414/pdf/06yh05qy5v0bwp.pdf,missing fields: ['investment_manager'],2026-04-14T20:09:00+11:00
