@@ -424,3 +424,4 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03082659,SPL,https://announcements.asx.com.au/asxpdf/20260415/pdf/06yhd1t5nq0dlp.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-15T08:38:36+11:00
 03082650,ERD,https://announcements.asx.com.au/asxpdf/20260415/pdf/06yhcfpcy1dwkl.pdf,missing fields: ['date_of_change'],2026-04-15T08:38:42+11:00
 03082645,ZMI,https://announcements.asx.com.au/asxpdf/20260415/pdf/06yhc34p9hv3v2.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-15T08:38:52+11:00
+03082711,SLS,https://announcements.asx.com.au/asxpdf/20260415/pdf/06yhhs8512ryqz.pdf,missing fields: ['date_of_change'],2026-04-15T09:36:31+11:00
