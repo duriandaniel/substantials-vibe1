@@ -447,3 +447,6 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03083358,OSX,https://announcements.asx.com.au/asxpdf/20260416/pdf/06yk9cvw2bch14.pdf,missing fields: ['date_of_change'],2026-04-16T14:46:30+11:00
 03083389,PEN,https://announcements.asx.com.au/asxpdf/20260416/pdf/06ykd0xtscc71j.pdf,missing fields: ['investment_manager'],2026-04-16T16:30:03+11:00
 03083387,GYG,https://announcements.asx.com.au/asxpdf/20260416/pdf/06ykcwdhfc9sxs.pdf,missing fields: ['investment_manager'],2026-04-16T16:30:06+11:00
+03083446,CVW,https://announcements.asx.com.au/asxpdf/20260416/pdf/06ykjlv20g1kv0.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-04-16T18:23:43+11:00
+03083445,MQG,https://announcements.asx.com.au/asxpdf/20260416/pdf/06ykjjhkxzgrkd.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-04-16T18:23:47+11:00
+03083437,AIS,https://announcements.asx.com.au/asxpdf/20260416/pdf/06ykhxdfc4b3z3.pdf,missing fields: ['date_of_change'],2026-04-16T18:23:55+11:00
