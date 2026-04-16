@@ -1703,3 +1703,9 @@ announcement_id,asx_code,company_name,form_type,action_type,lodgement_date,lodge
 03083427,DRO,,604,increase,2026-04-16,4:31 pm,2026-04-14,State Street Corporation and subsidiaries,,57890534,6.34%,69516280,7.53%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260416/pdf/06ykh449kwd7sw.pdf
 03083426,DRR,,605,cease,2026-04-16,4:29 pm,2026-04-14,State Street Corporation and subsidiaries,,,,,,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260416/pdf/06ykh1swmffm85.pdf
 03083424,QAN,,603,initial,2026-04-16,4:28 pm,2026-04-14,AustralianSuper Pty Ltd,006 457 987,,,79694356,5.27%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260416/pdf/06ykgxcx7hpk47.pdf
+03083566,PDI,,604,change,2026-04-17,8:26 am,,BlackRock Group (BlackRock Inc. and,,,,,,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260417/pdf/06yl04xr3s8dgw.pdf
+03083564,GPT,,604,change,2026-04-17,8:26 am,,,,,,,,,ai-vision,needs_review,https://announcements.asx.com.au/asxpdf/20260417/pdf/06yl00ntm3g81r.pdf
+03083548,TLX,,604,change,2026-04-17,8:24 am,2026-04-14,JPMorgan Chase & Co. and,,,,26089410,7.70%,$1,rule-based,high,https://announcements.asx.com.au/asxpdf/20260417/pdf/06ykyxvnc0cp6n.pdf
+03083545,GEM,,605,cease,2026-04-17,8:23 am,2026-04-13,Vanguard Group (The Vanguard Group,,,,,,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260417/pdf/06ykyqjpnbwdp0.pdf
+03083539,ZIP,,604,increase,2026-04-17,8:23 am,2026-04-14,JPMorgan Chase & Co. and,,65484416,5.15%,78810435,6.27%,$151732.76,rule-based,high,https://announcements.asx.com.au/asxpdf/20260417/pdf/06yky9wt5cf1h0.pdf
+03083538,IMM,,604,decrease,2026-04-17,8:22 am,2026-04-14,JPMorgan Chase & Co. and,,102267865,6.94%,80085921,5.43%,$2615.80,rule-based,high,https://announcements.asx.com.au/asxpdf/20260417/pdf/06yky7s3rz9d45.pdf
