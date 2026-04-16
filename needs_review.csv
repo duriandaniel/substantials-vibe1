@@ -452,3 +452,4 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03083437,AIS,https://announcements.asx.com.au/asxpdf/20260416/pdf/06ykhxdfc4b3z3.pdf,missing fields: ['date_of_change'],2026-04-16T18:23:55+11:00
 03083566,PDI,https://announcements.asx.com.au/asxpdf/20260417/pdf/06yl04xr3s8dgw.pdf,"missing fields: ['new_percent', 'date_of_change']",2026-04-17T08:32:17+11:00
 03083564,GPT,https://announcements.asx.com.au/asxpdf/20260417/pdf/06yl00ntm3g81r.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-17T08:32:29+11:00
+03083582,M24,https://announcements.asx.com.au/asxpdf/20260417/pdf/06yl185crnpn1h.pdf,missing fields: ['date_of_change'],2026-04-17T09:33:25+11:00
