@@ -1746,3 +1746,6 @@ announcement_id,asx_code,company_name,form_type,action_type,lodgement_date,lodge
 03083987,IPH,,603,initial,2026-04-20,8:16 am,2026-04-15,Dimensional Entities,,,,,5.026%,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260420/pdf/06ymwlqqkmw1sf.pdf
 03083986,DUG,,605,cease,2026-04-20,8:15 am,2026-04-15,JPMorgan Chase & Co. and,,,,,,$89.32,rule-based,high,https://announcements.asx.com.au/asxpdf/20260420/pdf/06ymwjlgcbwc3c.pdf
 03083982,NHC,,603,initial,2026-04-20,8:15 am,2026-04-15,JPMorgan Chase & Co. and,,,,,5.88%,$2364.12,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260420/pdf/06ymw84tkp6gd4.pdf
+03084294,TNE,,604,change,2026-04-20,1:43 pm,,,,,,,,,ai-vision,needs_review,https://announcements.asx.com.au/asxpdf/20260420/pdf/06ynmj9gg71t17.pdf
+03084292,TLS,,604,increase,2026-04-20,1:39 pm,2026-04-16,State Street Corporation and subsidiaries,,697178937,6.03%,831989028,7.39%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260420/pdf/06ynmccjrh5cqq.pdf
+03084270,CMO,,604,increase,2026-04-20,12:23 pm,,Management Z Pty Ltd 607,,30000000,5.08%,126666667,18.39%,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260420/pdf/06ynkbtkcsn3s4.pdf
