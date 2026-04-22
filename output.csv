@@ -1831,3 +1831,5 @@ announcement_id,asx_code,company_name,form_type,action_type,lodgement_date,lodge
 03085365,NXT,,603,initial,2026-04-23,8:15 am,2026-04-20,JPMorgan Chase & Co. and,,,,33164018,5.17%,$80377.22,rule-based,high,https://announcements.asx.com.au/asxpdf/20260423/pdf/06yrvfn9xp8qmj.pdf
 03085364,PDI,,604,change,2026-04-23,8:14 am,2026-04-20,Helikon Investments Limited Helikon Investments,,,,,8.1844%,$534588.75,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260423/pdf/06yrvcjjj69n4v.pdf
 03085336,QOR,,605,cease,2026-04-23,8:10 am,2026-04-20,NORGES BANK,,,,,,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260423/pdf/06yrsg8kd16802.pdf
+03085524,AKM,,604,change,2026-04-23,9:18 am,,,,,,,,,ai-vision,needs_review,https://announcements.asx.com.au/asxpdf/20260423/pdf/06ys6kmxrd57jd.pdf
+03085476,OSX,,605,cease,2026-04-23,8:53 am,,Advance Opportunities Fund,,,,,,$30000.00,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260423/pdf/06ys355zp527vy.pdf

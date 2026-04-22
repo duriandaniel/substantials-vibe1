@@ -491,3 +491,5 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03085329,A2M,https://announcements.asx.com.au/asxpdf/20260423/pdf/06yrrpy2014nh7.pdf,missing fields: ['date_of_change'],2026-04-23T07:43:09+11:00
 03085389,NSR,https://announcements.asx.com.au/asxpdf/20260423/pdf/06yrx2k9srq8pq.pdf,missing fields: ['date_of_change'],2026-04-23T08:40:04+11:00
 03085374,PDI,https://announcements.asx.com.au/asxpdf/20260423/pdf/06yrw1rqbzbp1t.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-23T08:40:22+11:00
+03085524,AKM,https://announcements.asx.com.au/asxpdf/20260423/pdf/06ys6kmxrd57jd.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-23T09:39:28+11:00
+03085476,OSX,https://announcements.asx.com.au/asxpdf/20260423/pdf/06ys355zp527vy.pdf,missing fields: ['date_of_change'],2026-04-23T09:39:32+11:00
