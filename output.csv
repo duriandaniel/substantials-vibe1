@@ -1863,3 +1863,5 @@ announcement_id,asx_code,company_name,form_type,action_type,lodgement_date,lodge
 03085841,FLT,,604,increase,2026-04-24,8:13 am,2026-04-20,Vanguard Group (The Vanguard Group,,11094591,5.001%,12376047,6.003%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260424/pdf/06yt6hkz4vm5z6.pdf
 03085835,BOE,,604,decrease,2026-04-24,8:12 am,2026-04-21,JPMorgan Chase & Co. and,,27711322,6.68%,23228972,5.60%,$5301.66,rule-based,high,https://announcements.asx.com.au/asxpdf/20260424/pdf/06yt62xcqwtm05.pdf
 03085819,GYG,,604,increase,2026-04-24,8:10 am,2026-04-21,JPMorgan Chase & Co. and,,5096898,5.03%,6132781,6.06%,$1915.67,rule-based,high,https://announcements.asx.com.au/asxpdf/20260424/pdf/06yt505mxn8ynw.pdf
+03085970,ERM,,603,initial,2026-04-24,9:05 am,,Weiss Asset Management LP and,,,,,5.03%,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260424/pdf/06ythjm6r1ypdx.pdf
+03085957,PDI,,604,change,2026-04-24,8:59 am,2026-04-22,Helikon Investments Limited Helikon Investments,,,,,11.7981%,$9355362.34,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260424/pdf/06ytgm8vwlt6r0.pdf
