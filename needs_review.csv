@@ -502,3 +502,4 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03085770,BEZ,https://announcements.asx.com.au/asxpdf/20260423/pdf/06ysvn58scb9rh.pdf,missing fields: ['new_percent'],2026-04-23T18:51:45+11:00
 03085755,BTL,https://announcements.asx.com.au/asxpdf/20260423/pdf/06ystflrgtz26b.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-04-23T18:51:54+11:00
 03085752,CYM,https://announcements.asx.com.au/asxpdf/20260423/pdf/06yst5r2sph7g9.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-23T18:52:01+11:00
+03085843,ALK,https://announcements.asx.com.au/asxpdf/20260424/pdf/06yt6mtxk6m7tm.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-24T08:36:34+11:00
