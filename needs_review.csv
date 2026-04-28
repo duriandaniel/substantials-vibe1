@@ -524,3 +524,8 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03086569,ENN,https://announcements.asx.com.au/asxpdf/20260427/pdf/06ywv0b63nx6fw.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-27T15:23:33+11:00
 03086960,BOE,https://announcements.asx.com.au/asxpdf/20260428/pdf/06yxyxs74hkp4l.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-28T12:04:38+11:00
 03086959,BKY,https://announcements.asx.com.au/asxpdf/20260428/pdf/06yxyvj0qbs7g0.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-04-28T12:04:44+11:00
+03087072,HUB,https://announcements.asx.com.au/asxpdf/20260428/pdf/06yy8jyp124mt3.pdf,"missing fields: ['new_percent', 'date_of_change']",2026-04-28T15:51:49+11:00
+03087049,QPM,https://announcements.asx.com.au/asxpdf/20260428/pdf/06yy6m83hqny9n.pdf,missing fields: ['new_percent'],2026-04-28T15:51:54+11:00
+03087033,IFT,https://announcements.asx.com.au/asxpdf/20260428/pdf/06yy55tjvt1tph.pdf,"missing fields: ['new_percent', 'date_of_change']",2026-04-28T15:51:59+11:00
+03087023,EVE,https://announcements.asx.com.au/asxpdf/20260428/pdf/06yy4b4vrtm4lq.pdf,missing fields: ['date_of_change'],2026-04-28T15:52:03+11:00
+03087010,BOE,https://announcements.asx.com.au/asxpdf/20260428/pdf/06yy36d4r3p77z.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-04-28T15:52:06+11:00
