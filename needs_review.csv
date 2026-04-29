@@ -538,3 +538,6 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03087337,FWD,https://announcements.asx.com.au/asxpdf/20260429/pdf/06yz2k2vdq0crb.pdf,missing fields: ['date_of_change'],2026-04-29T09:45:50+11:00
 03087330,ALR,https://announcements.asx.com.au/asxpdf/20260429/pdf/06yz22c4bbc45v.pdf,missing fields: ['date_of_change'],2026-04-29T09:46:00+11:00
 03087328,MPK,https://announcements.asx.com.au/asxpdf/20260429/pdf/06yz1y4ty6kd6b.pdf,missing fields: ['date_of_change'],2026-04-29T09:46:04+11:00
+03087685,KMD,https://announcements.asx.com.au/asxpdf/20260429/pdf/06yzwf6k28bvhj.pdf,"missing fields: ['new_percent', 'date_of_change']",2026-04-29T12:06:07+11:00
+03087666,MIO,https://announcements.asx.com.au/asxpdf/20260429/pdf/06yzttr6tv76gs.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-29T12:06:12+11:00
+03087624,GSS,https://announcements.asx.com.au/asxpdf/20260429/pdf/06yzqkjm219hnl.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-29T12:06:18+11:00
