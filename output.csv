@@ -2026,3 +2026,10 @@ announcement_id,asx_code,company_name,form_type,action_type,lodgement_date,lodge
 03088831,IMD,,604,decrease,2026-04-30,3:57 pm,2026-04-28,State Street Corporation and subsidiaries,,33926847,6.63%,28722623,5.61%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260430/pdf/06z2r8k3l80b8f.pdf
 03088829,EOS,,605,cease,2026-04-30,3:54 pm,2026-04-28,State Street Corporation and subsidiaries,,,,,,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260430/pdf/06z2r3l61884mz.pdf
 03089096,EMH,,605,cease,2026-04-30,7:06 pm,2026-04-24,European Bank for Reconstruction and,,,,,,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260430/pdf/06z3cdtqpttxzg.pdf
+03089160,EMR,,604,change,2026-05-01,8:20 am,,BlackRock Group (BlackRock Inc. and,,,,,,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3p8rsprnhky.pdf
+03089159,JHX,,604,change,2026-05-01,8:20 am,,notified by the person named,,,,,,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3p6p3ksm4kj.pdf
+03089156,ORG,,604,increase,2026-05-01,8:20 am,2026-04-27,Vanguard Group (The Vanguard Group,,103390173,6.001%,120628323,7.002%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3p0bkw4w6k4.pdf
+03089154,AZJ,,604,decrease,2026-05-01,8:19 am,2026-04-29,Mondrian Investment Partners Limited (in,,124081821,7.1%,100060801,5.9%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3nw4pmqqlj8.pdf
+03089143,LIN,,605,cease,2026-05-01,8:18 am,,UBS Group AG and its,,,,,,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3n3xfs0t21g.pdf
+03089133,WAF,,604,decrease,2026-05-01,8:17 am,2026-04-28,,,70498301,6.17%,58458023,5.12%,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3mfsxmyjny7.pdf
+03089125,NSR,,605,cease,2026-05-01,8:15 am,2026-04-28,JPMorgan Chase & Co. and,,,,,,$2,rule-based,high,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3lwpkzzsgwr.pdf
