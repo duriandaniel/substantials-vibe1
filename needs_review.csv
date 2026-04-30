@@ -567,3 +567,4 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03089159,JHX,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3p6p3ksm4kj.pdf,"missing fields: ['new_percent', 'date_of_change']",2026-05-01T08:43:19+11:00
 03089143,LIN,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3n3xfs0t21g.pdf,missing fields: ['date_of_change'],2026-05-01T08:43:33+11:00
 03089133,WAF,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3mfsxmyjny7.pdf,missing fields: ['investment_manager'],2026-05-01T08:43:36+11:00
+03089240,INR,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z3w0bvh5r5kf.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-05-01T09:43:19+11:00
