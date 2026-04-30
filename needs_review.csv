@@ -561,3 +561,5 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03088785,ELV,https://announcements.asx.com.au/asxpdf/20260430/pdf/06z2mrj08cbfn7.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-04-30T15:51:04+11:00
 03088714,KAR,https://announcements.asx.com.au/asxpdf/20260430/pdf/06z2glgzcz3br1.pdf,"missing fields: ['new_percent', 'date_of_change']",2026-04-30T15:51:13+11:00
 03088642,ING,https://announcements.asx.com.au/asxpdf/20260430/pdf/06z294zrr417m0.pdf,missing fields: ['date_of_change'],2026-04-30T15:51:25+11:00
+03089014,VAU,https://announcements.asx.com.au/asxpdf/20260430/pdf/06z357jp63f7jm.pdf,missing fields: ['date_of_change'],2026-04-30T18:06:13+11:00
+03088942,FRS,https://announcements.asx.com.au/asxpdf/20260430/pdf/06z302rzbqrf4z.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-04-30T18:06:20+11:00
