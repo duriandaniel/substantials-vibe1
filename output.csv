@@ -2059,3 +2059,9 @@ announcement_id,asx_code,company_name,form_type,action_type,lodgement_date,lodge
 03089653,SGH,,604,increase,2026-05-01,7:00 pm,2026-04-29,the substantial,,68571429,6.12%,130909091,10.44%,$0.24,rule-based,high,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z4wxf8stntc1.pdf
 03089651,ZIP,,604,decrease,2026-05-01,6:56 pm,2026-04-29,State Street Corporation and subsidiaries,,134930336,10.74%,122249218,9.73%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z4wr99lt9ztz.pdf
 03089649,SHV,,603,initial,2026-05-01,6:53 pm,2026-04-29,State Street Corporation and subsidiaries,,,,7169002,5.04%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z4wllxnbk725.pdf
+03089750,ALR,,604,change,2026-05-04,8:18 am,,The Bank of Nova Scotia,,485000000,,580000000,9.71%,,ai-vision,needs_review,https://announcements.asx.com.au/asxpdf/20260504/pdf/06z5y6ztwzg1tq.pdf
+03089712,NVQ,,603,initial,2026-05-04,8:14 am,2026-04-29,JAF CAPITAL PTY LTD,607 525 360,,,22982529,5.07%,$0.00,rule-based,high,https://announcements.asx.com.au/asxpdf/20260504/pdf/06z5vmz1yzd80v.pdf
+03089706,CWY,,605,cease,2026-05-04,8:13 am,2026-04-30,The Capital Group Companies Inc.,,,,,,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260504/pdf/06z5v76g0mwhwb.pdf
+03089702,RSG,,605,cease,2026-05-04,8:13 am,,BlackRock Group (BlackRock Inc. and,,,,,,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260504/pdf/06z5tyrmftw5wn.pdf
+03089700,SEK,,605,cease,2026-05-04,8:12 am,,BlackRock Group (BlackRock Inc. and,,,,,,,ai,needs_review,https://announcements.asx.com.au/asxpdf/20260504/pdf/06z5ttk8m4zcjg.pdf
+03089691,QOR,,603,initial,2026-05-04,8:11 am,2026-04-30,NORGES BANK,,,,69569183,5.06%,,rule-based,high,https://announcements.asx.com.au/asxpdf/20260504/pdf/06z5t6g1j07ww7.pdf

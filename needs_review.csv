@@ -575,3 +575,6 @@ announcement_id,asx_code,pdf_url,reason,timestamp
 03089515,A4N,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z4kjjhch0kt3.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-05-01T18:55:08+11:00
 03089504,VAU,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z4js4qn5rt5d.pdf,"missing fields: ['investment_manager', 'date_of_change']",2026-05-01T18:55:13+11:00
 03089496,BSN,https://announcements.asx.com.au/asxpdf/20260501/pdf/06z4j6cl62pbkh.pdf,"missing fields: ['investment_manager', 'new_percent', 'date_of_change']",2026-05-01T18:55:17+11:00
+03089750,ALR,https://announcements.asx.com.au/asxpdf/20260504/pdf/06z5y6ztwzg1tq.pdf,missing fields: ['date_of_change'],2026-05-04T08:32:27+11:00
+03089702,RSG,https://announcements.asx.com.au/asxpdf/20260504/pdf/06z5tyrmftw5wn.pdf,missing fields: ['date_of_change'],2026-05-04T08:32:36+11:00
+03089700,SEK,https://announcements.asx.com.au/asxpdf/20260504/pdf/06z5ttk8m4zcjg.pdf,missing fields: ['date_of_change'],2026-05-04T08:32:41+11:00
